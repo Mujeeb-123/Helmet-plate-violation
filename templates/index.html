@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Helmet Violation Detection System</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body{
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+
+        .container{
+            background:white;
+            padding:50px;
+            border-radius:20px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.3);
+            text-align:center;
+            width:500px;
+        }
+
+        h1{
+            color:#1e3c72;
+            margin-bottom:20px;
+        }
+
+        p{
+            color:#555;
+            margin-bottom:35px;
+            font-size:18px;
+        }
+
+        .btn{
+            display:block;
+            width:100%;
+            padding:15px;
+            margin:15px 0;
+            text-decoration:none;
+            background:#1e3c72;
+            color:white;
+            border-radius:10px;
+            font-size:18px;
+            transition:0.3s;
+        }
+
+        .btn:hover{
+            background:#2a5298;
+            transform:scale(1.03);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Helmet Violation Detection System</h1>
+
+    <p>
+        Detect helmet violations, recognize number plates,
+        and manage traffic records efficiently.
+    </p>
+
+    <a href="/upload" class="btn">
+        Upload Video
+    </a>
+
+    <a href="/violations" class="btn">
+         View Violations
+    </a>
+
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Video</title>
+
+    <style>
+        body{
+            background:#f4f6f9;
+            font-family:Segoe UI;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+        }
+
+        .box{
+            background:white;
+            padding:40px;
+            border-radius:20px;
+            box-shadow:0 5px 20px rgba(0,0,0,0.2);
+            width:450px;
+            text-align:center;
+        }
+
+        h1{
+            color:#1e3c72;
+            margin-bottom:30px;
+        }
+
+        input{
+            margin:20px;
+        }
+
+        button{
+            background:#1e3c72;
+            color:white;
+            border:none;
+            padding:12px 25px;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        button:hover{
+            background:#2a5298;
+        }
+
+        .home{
+            display:block;
+            margin-top:25px;
+            text-decoration:none;
+            color:#1e3c72;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1> Upload Video</h1>
+
+    <form
+        action="/upload_video"
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        <input type="file" name="video">
+
+        <br>
+
+        <button type="submit">
+            Upload
+        </button>
+
+    </form>
+
+    <a href="/" class="home">
+        ← Back to Home
+    </a>
+
+</div>
+
+</body>
+</html>

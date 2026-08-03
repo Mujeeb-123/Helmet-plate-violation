@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Violation History</title>
+
+    <style>
+
+        body{
+            font-family:Segoe UI;
+            background:#f4f6f9;
+            padding:40px;
+        }
+
+        h1{
+            color:#1e3c72;
+            margin-bottom:30px;
+            text-align:center;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+            box-shadow:0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        th{
+            background:#1e3c72;
+            color:white;
+            padding:15px;
+        }
+
+        td{
+            padding:15px;
+            text-align:center;
+            border-bottom:1px solid #ddd;
+        }
+
+        tr:hover{
+            background:#f2f2f2;
+        }
+
+        img{
+            width:180px;
+            border-radius:10px;
+        }
+
+        .home{
+            display:inline-block;
+            margin-bottom:25px;
+            text-decoration:none;
+            background:#1e3c72;
+            color:white;
+            padding:10px 20px;
+            border-radius:8px;
+        }
+
+        .home:hover{
+            background:#2a5298;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<a href="/" class="home">
+    ← Home
+</a>
+
+<h1>Violation History</h1>
+
+<table>
+
+<tr>
+    <th>ID</th>
+    <th>Plate Number</th>
+    <th>Violation</th>
+    <th>Image</th>
+    <th>Time</th>
+</tr>
+
+{% for v in violations %}
+<tr>
+    <td>{{ v[0] }}</td>
+    <td>{{ v[1] }}</td>
+    <td>{{ v[2] }}</td>
+
+    <td>
+        <img src="/{{ v[3] }}">
+    </td>
+
+    <td>{{ v[4] }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</body>
+</html>
