@@ -1,10 +1,14 @@
 from ultralytics import YOLO
 import cv2
+import easyocr
 from database.db import get_connection
-from datetime import datetime
+from difflib import SequenceMatcher
 import os
+import re
 
-helmet_model = YOLO("helmet_best.pt")
+
+model=YOLO("model/best.pt")
+reader=easyocr.Reader(['en'],gpu=False)
 
 
 def process_video(video_path):
@@ -25,7 +29,9 @@ def process_video(video_path):
     )
 
     frame_count = 0
-    saved_violation = False
+    saved_plates = []
+    last_saved_frame = -1000
+    SAVE_AFTER = 90      # ~3 sec for 30 FPS (adjust if needed)
 
     while True:
 
@@ -36,96 +42,124 @@ def process_video(video_path):
 
         frame_count += 1
 
-        results = helmet_model(frame, conf=0.25)
+        results = model(frame, imgsz=640, conf=0.35)
 
-        for box in results[0].boxes:
+        annotated_frame = results[0].plot()
 
-            x1, y1, x2, y2 = map(
-                int,
-                box.xyxy[0]
-            )
+        boxes = results[0].boxes
 
+        plate_box = None
+        violations = []
+
+        for box in boxes:
             cls = int(box.cls[0])
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+            if cls == 0:
+                plate_box = (x1, y1, x2, y2)
+            elif cls == 2:
+                violations.append("WithoutHelmet")
+            elif cls == 3:
+                violations.append("TripleRiding")
 
-            label = helmet_model.names[cls]
+        # OCR
+        
+        if plate_box is not None and len(violations) > 0:
 
-            conf = float(box.conf[0])
+            x1, y1, x2, y2 = plate_box
 
-            if label == "With Helmet":
-                color = (0, 255, 0)
-            else:
-                color = (0, 0, 255)
+            margin = 5
 
-            cv2.rectangle(
-                frame,
-                (x1, y1),
-                (x2, y2),
-                color,
-                2
-            )
+            x1 = max(0, x1 - margin)
+            y1 = max(0, y1 - margin)
+            x2 = min(frame.shape[1], x2 + margin)
+            y2 = min(frame.shape[0], y2 + margin)
 
-            cv2.putText(
-                frame,
-                f"{label} {conf:.2f}",
-                (x1, y1 - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                color,
-                2
-            )
+            plate = frame[y1:y2, x1:x2]
 
-            # Violation
-            if label == "Without Helmet":
-                if saved_violation:
-                    continue
+            ocr_result = reader.readtext(plate)
 
-                filename = datetime.now().strftime(
-                    "%Y%m%d_%H%M%S_%f.jpg"
-                )
+            if len(ocr_result) > 0:
 
-                image_path = (
-                    f"static/violations/{filename}"
-                )
+                best = max(ocr_result, key=lambda x: x[2])
 
-                cv2.imwrite(
-                    image_path,
-                    frame
-                )
+                plate_number = best[1]
+                confidence = best[2]
 
-                conn = get_connection()
-                cursor = conn.cursor()
+                # Clean OCR text
+                plate_number = plate_number.upper()
+                plate_number = re.sub(r'[^A-Z0-9]', '', plate_number)
 
-                query = """
-                INSERT INTO violations
-                (
-                    plate_number,
-                    violation_type,
-                    image_path,
-                    violation_time
-                )
-                VALUES
-                (%s,%s,%s,NOW())
-                """
+                if confidence > 0.40:
+                    duplicate = False
 
-                values = (
-                    "UNKNOWN",
-                    "No Helmet",
-                    image_path
-                )
+                    for saved in saved_plates:
 
-                cursor.execute(
-                    query,
-                    values
-                )
+                        similarity = SequenceMatcher(None, plate_number, saved).ratio()
 
-                conn.commit()
+                        if similarity > 0.80:
+                            duplicate = True
+                            break
 
-                cursor.close()
-                conn.close()
+                    # 3-second cooldown
+                    if frame_count - last_saved_frame < SAVE_AFTER:
+                        duplicate = True
 
-                saved_violation = True
-                
-        out.write(frame)
+                    if duplicate:
+                        continue
+
+                    saved_plates.append(plate_number)
+                    last_saved_frame = frame_count
+
+                    violation_text = ", ".join(set(violations))
+
+                    # Save full frame
+                    frame_name = f"{plate_number}_{frame_count}.jpg"
+                    frame_path = os.path.join("static", "violations", frame_name)
+
+                    cv2.imwrite(frame_path, frame)
+
+                    # Save cropped plate
+                    plate_name = f"{plate_number}_{frame_count}.jpg"
+                    plate_path = os.path.join("static", "plates", plate_name)
+
+                    cv2.imwrite(plate_path, plate)
+
+                    conn = get_connection()
+
+                    query = """
+                    INSERT INTO violations
+                    (
+                        plate_number,
+                        violation_type,
+                        image_path,
+                        plate_image,
+                        violation_time
+                    )
+                    VALUES (%s,%s,%s,%s,NOW())
+                    """
+
+                    values = (
+                        plate_number,
+                        violation_text,
+                        frame_path,
+                        plate_path
+                    )
+
+                    if conn is None:
+                        print("Database connection failed")
+                    else:
+                        cursor = conn.cursor()
+                        cursor.execute(query, values)
+                        conn.commit()
+                        cursor.close()
+                        conn.close()
+
+                    print("=" * 50)
+                    print("Plate :", plate_number)
+                    print("Violation :", violation_text)
+                    print("Confidence :", round(confidence, 2))
+
+        out.write(annotated_frame)
 
     cap.release()
     out.release()

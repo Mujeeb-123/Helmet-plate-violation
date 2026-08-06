@@ -39,6 +39,7 @@ def violations():
         violations=rows
     )
 
+
 @app.route("/upload_video", methods=["POST"])
 def upload_video():
 
@@ -56,12 +57,11 @@ def upload_video():
 
     output_video = process_video(path)
 
-    output_video = process_video(path)
-
     return render_template(
         "result.html",
         output_video=output_video
     )
+
 
 if __name__ == "__main__":
     app.run(debug=True)

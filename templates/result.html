@@ -1,36 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Detection Results</title>
 
     <style>
 
         body{
             font-family:Segoe UI;
             background:#f4f6f9;
+            margin:0;
             padding:40px;
         }
 
         .container{
             width:90%;
+            max-width:1100px;
             margin:auto;
+            text-align:center;
         }
 
         h1{
             color:#1e3c72;
-            text-align:center;
+            margin-bottom:10px;
+        }
+
+        p{
+            color:#555;
             margin-bottom:30px;
         }
 
         video{
             width:100%;
-            border-radius:15px;
+            border-radius:12px;
             box-shadow:0 5px 20px rgba(0,0,0,.2);
         }
 
         .buttons{
             margin-top:30px;
-            text-align:center;
         }
 
         a{
@@ -41,10 +46,12 @@
             border-radius:8px;
             margin:10px;
             display:inline-block;
+            transition:.3s;
         }
 
         a:hover{
             background:#2a5298;
+            transform:translateY(-2px);
         }
 
     </style>
@@ -55,27 +62,38 @@
 
     <div class="container">
 
-        <h1>Detection Completed</h1>
+    <h1>✅ Detection Completed Successfully</h1>
 
-        <video width="900" controls>
-            <source
-                src="{{ url_for('static', filename=output_video) }}"
-                type="video/mp4">
-        </video>
+    <p>
+    The uploaded video has been processed successfully.
+    You can review the processed video below or view the detected violations.
+    </p>
 
-        <div class="buttons">
+    <video controls>
+        <source
+            src="{{ url_for('static', filename=output_video) }}"
+            type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
-            <a href="/violations">
-            View Violations
-            </a>
+    <div class="buttons">
 
-            <a href="/">
-            Upload Another Video
-            </a>
+    <a href="/violations">
+        View Violations
+    </a>
 
-        </div>
+    <a href="/upload">
+        Upload Another Video
+    </a>
+
+    <a href="/">
+        Home
+    </a>
+
+    </div>
 
     </div>
 
 </body>
+
 </html>
