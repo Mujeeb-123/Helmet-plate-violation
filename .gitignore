@@ -4,8 +4,6 @@ __pycache__/
 venv/
 .env
 
-model/best.pt
-
 static/uploads/*
 static/output/*
 static/violations/*
