@@ -1,37 +1,16 @@
-# Python
 __pycache__/
 *.pyc
-
-# Virtual Environment
+.venv/
 venv/
-env/
+.env
 
-# VS Code
-.vscode/
+model/best.pt
 
-# Uploaded Videos
 static/uploads/*
-
-# Generated Output Videos
 static/output/*
-
-# Violation Images
 static/violations/*
+static/plates/*
 
-# Keep folders
-!static/uploads/.gitkeep
-!static/output/.gitkeep
-!static/violations/.gitkeep
-
-# Database
-*.db
-
-# Model training runs
-runs/
-
-# Jupyter
-.ipynb_checkpoints/
-
-# OS
-.DS_Store
-Thumbs.db
+*.mp4
+*.avi
+*.webm
